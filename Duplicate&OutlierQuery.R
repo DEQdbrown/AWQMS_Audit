@@ -29,23 +29,28 @@ options(scipen = 999999)
 setwd("//deqlab1/Assessment/AWQMS/Validation")
 
 ### Set the data window by changing these dates
+### For quarterly audits, set the date range to one year
+### For pre-Integrated Report audits, set the date range to five years
 Start_Date <- '2023-12-01' 
 End_Date <- '2023-12-31'
 
 ### Pull in list of parameter name translations and WQS units
 UnitConv <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
-OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2024-08-01.xlsx") # make sure the date matches the file
+OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2024-08-19.xlsx") # make sure the date matches the file
 
 ### Load convert units function
-source("//deqlab1/Assessment/AWQMS/Validation/FUNCTION_convert_units.R")
+source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_convert_units.R")
 
-### Pull all data from AWQMS within the data window created above
-### A 5 year data pull took about 35 min initially, so be prepared to wait for a bit
+### Quarterly Audit data pull 
+All_Data <- AWQMS_Data(WQX_submit_date >= Start_Date, WQX_submit_date <= End_Date, filterQC = FALSE) %>%
+  mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"))
+
+### Pre-IR Audit data pull
 All_Data <- AWQMS_Data(startdate = Start_Date, enddate = End_Date, filterQC = FALSE) %>%
   mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"))
 
 ### Normalize units to help identify duplicates
-funNormUnits_Data <- All_Data %>%
+NormUnits_Data <- All_Data %>%
   left_join(UnitConv, c('SampleMedia', 'chr_uid', 'Char_Name', 'Result_Unit', 'Unit_UID')) %>% # joins data with the UnitsConv file
   convert_units(unit_col = 'Unit_UID', pref_unit_col = 'Pref_Unit_UID', 
                 result_col = 'Result_Numeric') %>% # this is the function listed above

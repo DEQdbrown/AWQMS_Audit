@@ -34,16 +34,17 @@ Start_Date <- End_Date - years(10)
 NormUnits <- read.xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
 
 ### Load convert units function
-source("//deqlab1/Assessment/AWQMS/Validation/FUNCTION_convert_units.R")
+source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_convert_units.R")
 
 ### Pull all data from AWQMS for the last 10 years
-All_Proj_Data10yr <- AWQMS_Data(startdate = Start_Date, enddate = End_Date, filterQC = FALSE) %>% 
+All_Proj_Data <- AWQMS_Data(startdate = Start_Date, enddate = End_Date, filterQC = FALSE) %>% 
   mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d")) 
 
 ### Filter out Unknown Projects, non-detect results, and WQX Orgs - not being used at the moment
 Filt_Proj_Data <- All_Proj_Data %>%
   filter(Result_Operator != '<') %>% # remove non-detects
   filter(!is.na(Result_Unit)) %>% # remove NAs from unit column
+  filter(!str_detect(Activity_Type, 'Blank|Spike')) #%>% # remove blanks and matrix spikes
   #filter(Project1 != 'Unknown') %>% # remove WQX projects
   #filter(!str_detect(OrganizationID, "WQX")) # remove WQX organizations
   
@@ -58,7 +59,6 @@ Param_Check <- Filt_Proj_Data %>%
   distinct(SampleMedia, chr_uid, ParamUID, Char_Name, CASNumber, Unit_UID, Result_Unit, 
            Pref_Unit_UID, Preferred_Unit) %>% # Finds the unique combinations of these nine columns
   filter(is.na(ParamUID)) # removes non-NAs from the ParamUID column leaving only new parameters without ParamUIDs
-
 
 write.xlsx(Param_Check, "AnyNewParameters.xlsx")
 stop("Review needed")
@@ -78,21 +78,32 @@ stop("Review needed")
 # Check this file for any conversions not already captured in the script
 # If any new conversions are needed, including one to one conversions, update the code below before moving on with this script
 
-### Convert data to preferred units
-Converted_Data <- All_Proj_Data %>%
+### Convert data to preferred units and filter out leachate and influent
+Converted_Data <- Filt_Proj_Data %>%
   left_join(NormUnits, c('SampleMedia', 'chr_uid', 'Char_Name', 'Result_Unit', 'Unit_UID')) %>% # join with normalized units file
+  filter(is.na(SampleSubmedia) | !str_detect(SampleSubmedia, 'Leachate|Influent')) %>%
   convert_units(unit_col = 'Unit_UID', pref_unit_col = 'Pref_Unit_UID', 
                 result_col = 'Result_Numeric') %>% # this is the function listed above
   relocate(c(Conv_Result, Preferred_Unit, Pref_Unit_UID), 
            .before = ResultCondName) %>% # move joined or created results columns closer to AWQMS result columns
   filter(!is.na(Result_Unit)) %>% # remove NAs from Result_Unit column
   filter(Statistical_Base != "Delta" | is.na(Statistical_Base)) # filters out Delta and NA values from the statistical base column
+   
+LeachInflu_Data <- Filt_Proj_Data %>%
+  left_join(NormUnits, c('SampleMedia', 'chr_uid', 'Char_Name', 'Result_Unit', 'Unit_UID')) %>% 
+  filter(str_detect(SampleSubmedia, 'Leachate|Influent')) %>%
+  convert_units(unit_col = 'Unit_UID', pref_unit_col = 'Pref_Unit_UID', 
+                result_col = 'Result_Numeric') %>% 
+  relocate(c(Conv_Result, Preferred_Unit, Pref_Unit_UID), 
+           .before = ResultCondName) %>% 
+  filter(!is.na(Result_Unit)) %>% 
+  filter(Statistical_Base != "Delta" | is.na(Statistical_Base)) 
 
-### Calculate Percentiles
-Percentiles <- Converted_Data %>%
+### Calculate percentiles for a majority of data and leachate/influent data separately
+MajorityPerc <- Converted_Data %>%
   mutate(Char_Speciation = as.character(Char_Speciation),
          Sample_Fraction = as.character(Sample_Fraction),
-         Statistical_Base = as.character(Statistical_Base)) %>% # ensures that thes three columns are characters
+         Statistical_Base = as.character(Statistical_Base)) %>% # ensures that these three columns are characters
   group_by(SampleMedia, ParamUID, Char_Speciation, Sample_Fraction, 
            Statistical_Base, Preferred_Unit) %>% # groups data by these six columns
   summarise(
@@ -100,5 +111,18 @@ Percentiles <- Converted_Data %>%
     p99 = quantile(Conv_Result, probs = 0.99, na.rm = TRUE) # calculates the 1st and 99th percentiles
   )
 
-### Write the file to Excel
+LeachPerc <- LeachInflu_Data %>%
+  mutate(Char_Speciation = as.character(Char_Speciation),
+         Sample_Fraction = as.character(Sample_Fraction),
+         Statistical_Base = as.character(Statistical_Base)) %>% 
+  group_by(SampleMedia, ParamUID, Char_Speciation, Sample_Fraction, 
+           Statistical_Base, Preferred_Unit) %>% 
+  summarise(
+    p01 = quantile(Conv_Result, probs = 0.01, na.rm = TRUE), 
+    p99 = quantile(Conv_Result, probs = 0.99, na.rm = TRUE) 
+  )
+
+### Combine Data and write the file to Excel
+Percentiles <- bind_rows(MajorityPerc, LeachPerc)
+
 write.xlsx(Percentiles, str_glue("OutlierPercentiles_{End_Date}.xlsx"))
