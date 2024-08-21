@@ -42,8 +42,8 @@ OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_convert_units.R")
 
 ### Quarterly Audit data pull 
-All_Data <- AWQMS_Data(WQX_submit_date >= Start_Date, WQX_submit_date <= End_Date, filterQC = FALSE) %>%
-  mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"))
+#All_Data <- AWQMS_Data(WQX_submit_date >= Start_Date, WQX_submit_date <= End_Date, filterQC = FALSE) %>%
+#  mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"))
 
 ### Pre-IR Audit data pull
 All_Data <- AWQMS_Data(startdate = Start_Date, enddate = End_Date, filterQC = FALSE) %>%
@@ -140,8 +140,10 @@ day_time_dups <- NormUnits_Data %>%
 
 ### Combine duplicates and write file to Validation folder
 all_together <- bind_rows(strght_dups, day_time_dups) %>%
-  select(-org_name, -StationDes) %>%
-  relocate(c(group_num, dup_type, num_resUID), .before = OrganizationID)
+  mutate(Determination = NA) %>%
+  select(-org_name, -StationDes, -ParamUID, -ComboName, -CommonName, -AWQMS) %>%
+  relocate(c(group_num, dup_type, num_resUID), .before = OrganizationID) %>%
+  relocate(Determination, .before = dup_type)
 
 write.xlsx(all_together, file = paste0("AWQMS_duplicates_", Sys.Date(), ".xlsx"))
 
