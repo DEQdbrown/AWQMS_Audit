@@ -140,10 +140,11 @@ day_time_dups <- NormUnits_Data %>%
 
 ### Combine duplicates and write file to Validation folder
 all_together <- bind_rows(strght_dups, day_time_dups) %>%
-  mutate(Determination = NA) %>%
+  mutate(Determination = NA, 
+         DCP = NA) %>%
   select(-org_name, -StationDes, -ParamUID, -ComboName, -CommonName, -AWQMS) %>%
   relocate(c(group_num, dup_type, num_resUID), .before = OrganizationID) %>%
-  relocate(Determination, .before = dup_type)
+  relocate(c(Determination, DCP), .before = dup_type)
 
 write.xlsx(all_together, file = paste0("AWQMS_duplicates_", Sys.Date(), ".xlsx"))
 
@@ -152,7 +153,10 @@ Outliers <- NormUnits_Data %>%
   left_join(OutPerc, c('SampleMedia', 'ParamUID', 'Char_Speciation', 'Sample_Fraction', 'Statistical_Base', 'Preferred_Unit')) %>%
   mutate(val_result = case_when(Conv_Result < p01 ~ "Below the 1st percentile",
                                 Conv_Result > p99 ~ "Above the 99th percentile",
-                                is.na(p01) | is.na(p99) ~ "No percentile data found"))
+                                is.na(p01) | is.na(p99) ~ "No percentile data found")) %>%
+  select(-org_name, -StationDes, -ParamUID, -ComboName, -CommonName, -AWQMS) %>%
+  relocate(val_result, .before = OrganizationID) %>%
+  relocate(c(p01, p99), .before = ResultCondName)
 
 manual_check <- Outliers %>%
   filter(!is.na(val_result),
