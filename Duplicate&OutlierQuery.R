@@ -54,6 +54,8 @@ NormUnits_Data <- All_Data %>%
   left_join(UnitConv, c('SampleMedia', 'chr_uid', 'Char_Name', 'Result_Unit', 'Unit_UID')) %>% # joins data with the UnitsConv file
   convert_units(unit_col = 'Unit_UID', pref_unit_col = 'Pref_Unit_UID', 
                 result_col = 'Result_Numeric') %>% # this is the function listed above
+  filter(Result_Operator != '<') %>% # remove non-detects
+  filter(!str_detect(Activity_Type, 'Blank|Spike')) %>% # remove blanks and spikes
   relocate(c(Conv_Result, Preferred_Unit, Pref_Unit_UID), .before = ResultCondName) # moves three columns forward in the file
   
 
@@ -151,12 +153,13 @@ write.xlsx(all_together, file = paste0("AWQMS_duplicates_", Sys.Date(), ".xlsx")
 ### Calculate outliers, filter out NAs and non-detects, write file to Validation folder
 Outliers <- NormUnits_Data %>%
   left_join(OutPerc, c('SampleMedia', 'ParamUID', 'Char_Speciation', 'Sample_Fraction', 'Statistical_Base', 'Preferred_Unit')) %>%
-  mutate(val_result = case_when(Conv_Result < p01 ~ "Below the 1st percentile",
+  mutate(out_type = case_when(Conv_Result < p01 ~ "Below the 1st percentile",
                                 Conv_Result > p99 ~ "Above the 99th percentile",
-                                is.na(p01) | is.na(p99) ~ "No percentile data found")) %>%
+                                is.na(p01) | is.na(p99) ~ "No percentile data found"),
+         Determination = NA,
+         DCP = NA) %>%
   select(-org_name, -StationDes, -ParamUID, -ComboName, -CommonName, -AWQMS) %>%
-  relocate(val_result, .before = OrganizationID) %>%
-  relocate(c(p01, p99), .before = ResultCondName)
+  relocate(c(p01, p99, out_type, Determination, DCP), .before = ResultCondName)
 
 manual_check <- Outliers %>%
   filter(!is.na(val_result),

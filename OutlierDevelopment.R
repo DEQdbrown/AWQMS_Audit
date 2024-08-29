@@ -33,7 +33,7 @@ Start_Date <- End_Date - years(10)
 ### Pull in list of normalized units, parameterUIDs, and common names
 NormUnits <- read.xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
 
-### Load convert units function
+### Load convert_units function
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_convert_units.R")
 
 ### Pull all data from AWQMS for the last 10 years
@@ -83,7 +83,7 @@ Converted_Data <- Filt_Proj_Data %>%
   left_join(NormUnits, c('SampleMedia', 'chr_uid', 'Char_Name', 'Result_Unit', 'Unit_UID')) %>% # join with normalized units file
   filter(is.na(SampleSubmedia) | !str_detect(SampleSubmedia, 'Leachate|Influent')) %>%
   convert_units(unit_col = 'Unit_UID', pref_unit_col = 'Pref_Unit_UID', 
-                result_col = 'Result_Numeric') %>% # this is the function listed above
+                result_col = 'Result_Numeric') %>% # convert_units is the function listed above
   relocate(c(Conv_Result, Preferred_Unit, Pref_Unit_UID), 
            .before = ResultCondName) %>% # move joined or created results columns closer to AWQMS result columns
   filter(!is.na(Result_Unit)) %>% # remove NAs from Result_Unit column
