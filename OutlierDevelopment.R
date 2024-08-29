@@ -27,8 +27,8 @@ options(scipen = 999999)
 setwd("//deqlab1/Assessment/AWQMS/Validation")
 
 ### Set the data window by changing these dates
-End_Date <- Sys.Date()
-Start_Date <- End_Date - years(10)
+End_Date <- '2023-12-31' #Sys.Date()
+Start_Date <- '2023-12-01' #End_Date - years(10)
 
 ### Pull in list of normalized units, parameterUIDs, and common names
 NormUnits <- read.xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
@@ -125,4 +125,4 @@ LeachPerc <- LeachInflu_Data %>%
 ### Combine Data and write the file to Excel
 Percentiles <- bind_rows(MajorityPerc, LeachPerc)
 
-write.xlsx(Percentiles, str_glue("OutlierPercentiles_{End_Date}.xlsx"))
+write.xlsx(Percentiles, str_glue("OutlierPercentiles_{End_Date}test.xlsx"))
