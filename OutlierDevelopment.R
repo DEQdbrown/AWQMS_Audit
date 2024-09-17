@@ -40,13 +40,12 @@ source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_co
 All_Proj_Data <- AWQMS_Data(startdate = Start_Date, enddate = End_Date, filterQC = FALSE) %>% 
   mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d")) 
 
-### Filter out Unknown Projects, non-detect results, and WQX Orgs - not being used at the moment
+### Filter out Unknown Projects, non-detect results, and QA samples
 Filt_Proj_Data <- All_Proj_Data %>%
   filter(Result_Operator != '<') %>% # remove non-detects
   filter(!is.na(Result_Unit)) %>% # remove NAs from unit column
   filter(!str_detect(Activity_Type, 'Blank|Spike')) #%>% # remove blanks and matrix spikes
-  #filter(Project1 != 'Unknown') %>% # remove WQX projects
-  #filter(!str_detect(OrganizationID, "WQX")) # remove WQX organizations
+
   
 # This snippet isn't necessary to run, but can be helpful if needed. It is more informative if lines 43-48 have been run 
 # Count_Param <- All_Proj_Data %>%
