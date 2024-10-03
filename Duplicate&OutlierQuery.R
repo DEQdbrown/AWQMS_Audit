@@ -13,7 +13,7 @@
 ###                                                                          ###
 
 #install.packages("devtools")
-devtools::install_github("TravisPritchardODEQ/AWQMSdata",dependencies = TRUE, force = TRUE, upgrade = FALSE)
+#devtools::install_github("TravisPritchardODEQ/AWQMSdata",dependencies = TRUE, force = TRUE, upgrade = FALSE)
 
 ### Load tools and packages necessary for this script
 library(tidyverse)
