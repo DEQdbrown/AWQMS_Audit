@@ -13,7 +13,7 @@
 ###                                                                          ###
 
 #install.packages("devtools")
-#devtools::install_github("TravisPritchardODEQ/AWQMSdata",dependencies = TRUE, force = TRUE, upgrade = FALSE)
+devtools::install_github("TravisPritchardODEQ/AWQMSdata",dependencies = TRUE, force = TRUE, upgrade = FALSE)
 
 ### Load tools and packages necessary for this script
 library(tidyverse)
@@ -29,13 +29,13 @@ options(scipen = 999999)
 setwd("//deqlab1/Assessment/AWQMS/Validation")
 
 ### Set the data window by changing these dates
-### For quarterly audits, set the Q_date range to one year, then run lines 48-50
-### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 53-54
-Q_Start_Date <- ymd_hms('2023-01-01 00:00:00')
-Q_End_Date <- ymd_hms('2023-12-31 23:59:59')
+### For quarterly audits, set the Q_date range to one year, then run lines 48-51
+### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
+Q_Start_Date <- '2024-10-01'
+Q_End_Date <- '2024-10-02'
 
 IR_Start_Date <- '2023-01-01' 
-IR_End_Date <- '2023-12-31'
+IR_End_Date <- '2023-01-08'
 
 ### Pull in list of parameter name translations and WQS units
 UnitConv <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
@@ -45,13 +45,15 @@ OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_convert_units.R")
 
 ### Quarterly Audit data pull 
-All_Data <- AWQMS_Data(last_change_start = Q_Start_Date, last_change_end = Q_End_Date, filterQC = FALSE) %>% # This may change, so check
- mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"),
-        res_last_change_date = as.Date(res_last_change_date, format = "%Y-%m-%d"))
+All_Data_2 <- AWQMS_Data(last_change_start = Q_Start_Date, last_change_end = Q_End_Date, filterQC = FALSE) %>%
+  mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"),
+        res_last_change_date = as.Date(res_last_change_date, format = "%Y-%m-%d")) %>% # format date columns as dates
+  filter(is.na(Result_Comment) | Result_Comment == "" | !str_detect(Result_Comment, 'DCC:|OCC:')) # remove previously reviewed results from dataset but keep NA and blank comments
 
-### Pre-IR Audit data pull
+## Pre-IR Audit data pull
 # All_Data <- AWQMS_Data(startdate = IR_Start_Date, enddate = IR_End_Date, filterQC = FALSE) %>%
-#   mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"))
+#   mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d")) %>%
+#   filter(is.na(Result_Comment) | Result_Comment == "" | !str_detect(Result_Comment, ':WQX')) # remove WQX problem data from dataset but keep NA and blank comments
 
 ### Normalize units to help identify duplicates
 NormUnits_Data <- All_Data %>%
@@ -149,10 +151,10 @@ all_together <- bind_rows(strght_dups, day_time_dups) %>%
   mutate(Determination = NA, 
          DCP = NA) %>%
   select(-org_name, -StationDes, -ParamUID, -ComboName, -CommonName, -AWQMS) %>%
-  relocate(c(group_num, dup_type, num_resUID), .before = OrganizationID) %>%
-  relocate(c(Determination, DCP), .before = dup_type)
+  relocate(c(group_num, Determination, DCP, dup_type, num_resUID), .before = OrganizationID) %>%
+  relocate(c(Time_Basis, Statistical_Base, Method_Code), .before = ResultCondName)
 
-write.xlsx(all_together, file = paste0("AWQMS_duplicates_", Sys.Date(), "test.xlsx"))
+write.xlsx(all_together, file = paste0("AWQMS_duplicates_", Sys.Date()))
 
 ### Calculate outliers, filter out NAs and non-detects, write file to Validation folder
 Outliers <- NormUnits_Data %>%
@@ -163,11 +165,12 @@ Outliers <- NormUnits_Data %>%
                                 is.na(p01) | is.na(p99) ~ "No percentile data found"),
          Determination = NA,
          DCP = NA) %>%
-  select(-org_name, -StationDes, -ParamUID, -ComboName, -CommonName, -AWQMS) %>%
-  relocate(c(p01, p99, out_type, Determination, DCP), .before = ResultCondName)
+  select(-org_name, -StationDes, -ParamUID, -ComboName, -CommonName, -AWQMS) 
 
 manual_check <- Outliers %>%
   filter(!is.na(out_type),
-         Result_Operator != '<')
+         Result_Operator != '<') %>%
+  relocate(c(p01, p99, Time_Basis, Statistical_Base, Method_Code), .before = ResultCondName) %>%
+  relocate(c(Determination, DCP, out_type), .before = OrganizationID)
 
-write.xlsx(manual_check, file = paste0("AWQMS_outliers_", Sys.Date(), "test.xlsx"))
+write.xlsx(manual_check, file = paste0("AWQMS_outliers_", Sys.Date()))
