@@ -42,9 +42,10 @@ All_Proj_Data <- AWQMS_Data(startdate = Start_Date, enddate = End_Date, filterQC
 
 ### Filter out Unknown Projects, non-detect results, and QA samples
 Filt_Proj_Data <- All_Proj_Data %>%
-  filter(Result_Operator != '<') %>% # remove non-detects
-  filter(!is.na(Result_Unit)) %>% # remove NAs from unit column
-  filter(!str_detect(Activity_Type, 'Blank|Spike')) #%>% # remove blanks and matrix spikes
+  filter(!str_detect(Result_Operator, '<'), # remove non-detects
+         !is.na(Result_Unit), # remove NAs from unit column
+         Result_Status != 'Rejected', # remove rejected data
+         !str_detect(Activity_Type, 'Blank|Spike')) # remove blanks and matrix spikes
 
   
 # This snippet isn't necessary to run, but can be helpful if needed. It is more informative if lines 43-48 have been run 
