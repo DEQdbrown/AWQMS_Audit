@@ -31,8 +31,8 @@ setwd("//deqlab1/Assessment/AWQMS/Validation")
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
 ### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
-Q_Start_Date <- '2023-09-01'
-Q_End_Date <- '2023-09-30'
+Q_Start_Date <- '2024-05-06'
+Q_End_Date <- '2024-05-08'
 
 IR_Start_Date <- '2023-09-01' 
 IR_End_Date <- '2023-09-30'
@@ -173,4 +173,4 @@ manual_check <- Outliers %>%
   relocate(c(p01, p99, Time_Basis, Statistical_Base, Method_Code), .before = ResultCondName) %>%
   relocate(c(Determination, DCP, out_type), .before = OrganizationID)
 
-write.xlsx(manual_check, file = paste0("AWQMS_outliers_", Sys.Date()))
+write.xlsx(manual_check, file = paste0("AWQMS_outliers_", Sys.Date(),".xlsx"))
