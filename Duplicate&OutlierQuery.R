@@ -169,6 +169,7 @@ Outliers <- NormUnits_Data %>%
 
 manual_check <- Outliers %>%
   filter(!is.na(out_type),
+         out_type != "No percentile data found",
          Result_Operator != '<') %>%
   relocate(c(p01, p99, Time_Basis, Statistical_Base, Method_Code), .before = ResultCondName) %>%
   relocate(c(Determination, DCP, out_type), .before = OrganizationID)
