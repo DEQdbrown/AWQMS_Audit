@@ -108,8 +108,8 @@ MajorityPerc <- Converted_Data %>%
            Statistical_Base, Preferred_Unit) %>% # groups data by these six columns
   summarise(
     p01 = quantile(Conv_Result, probs = 0.01, na.rm = TRUE), 
-    p99 = quantile(Conv_Result, probs = 0.99, na.rm = TRUE) # calculates the 1st and 99th percentiles
-  )
+    p99 = quantile(Conv_Result, probs = 0.99, na.rm = TRUE)) %>% # calculates the 1st and 99th percentiles
+  mutate(SubMedia = if_else(SampleMedia == 'Water',"NonLeach",NA))
 
 LeachPerc <- LeachInflu_Data %>%
   mutate(Char_Speciation = as.character(Char_Speciation),
@@ -119,8 +119,8 @@ LeachPerc <- LeachInflu_Data %>%
            Statistical_Base, Preferred_Unit) %>% 
   summarise(
     p01 = quantile(Conv_Result, probs = 0.01, na.rm = TRUE), 
-    p99 = quantile(Conv_Result, probs = 0.99, na.rm = TRUE) 
-  )
+    p99 = quantile(Conv_Result, probs = 0.99, na.rm = TRUE)) %>%
+  mutate(SubMedia = if_else(SampleMedia == 'Water',"Leach",NA))
 
 ### Combine Data and write the file to Excel
 Percentiles <- bind_rows(MajorityPerc, LeachPerc)
