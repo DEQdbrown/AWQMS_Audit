@@ -55,12 +55,13 @@ Filt_Proj_Data <- All_Proj_Data %>%
   
 ### Check for new parameters
 Param_Check <- Filt_Proj_Data %>%
+  mutate(Result_Unit = str_replace(Result_Unit, "/L", "/l")) %>%
   left_join(NormUnits, c('SampleMedia', 'chr_uid', 'Char_Name', 'Result_Unit', 'Unit_UID')) %>% # joins data with the NormUnits file
   distinct(SampleMedia, chr_uid, ParamUID, Char_Name, CASNumber, Unit_UID, Result_Unit, 
            Pref_Unit_UID, Preferred_Unit) %>% # Finds the unique combinations of these nine columns
   filter(is.na(ParamUID)) # removes non-NAs from the ParamUID column leaving only new parameters without ParamUIDs
 
-write.xlsx(Param_Check, "AnyNewParameters.xlsx")
+write.xlsx(Param_Check, str_glue("AnyNewParametersNeeded_{End_Date}.xlsx"))
 stop("Review needed")
 # Check this file for any new parameters that need a ParamUID, preferred units or conversion.
 # If new parameters are found, update NormUnits file and reload by running line 34 again before moving on with this script
@@ -73,7 +74,7 @@ Conv_Check <- Filt_Proj_Data %>%
   mutate(Same = if_else(Unit_UID == Pref_Unit_UID, 'Yep', 'Nope')) %>% # creates a column indicating if the unit columns match
   filter(Same != 'Yep') # removes rows where the unit columns match leaving only pairs where conversion might be needed
   
-write.xlsx(Conv_Check, "AnyNewConversionsNeeded.xlsx")
+write.xlsx(Conv_Check, str_glue("AnyNewConversionsNeeded_{End_Date}.xlsx"))
 stop("Review needed")
 # Check this file for any conversions not already captured in the script
 # If any new conversions are needed, including one to one conversions, update the code below before moving on with this script
