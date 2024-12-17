@@ -44,7 +44,7 @@ All_Proj_Data <- AWQMS_Data(startdate = Start_Date, enddate = End_Date, filterQC
 Filt_Proj_Data <- All_Proj_Data %>%
   filter(!str_detect(Result_Operator, '<'), # remove non-detects
          !is.na(Result_Unit), # remove NAs from unit column
-         Result_Status != 'Rejected', # remove rejected data
+         Result_status != 'Rejected', # remove rejected data
          !str_detect(Activity_Type, 'Blank|Spike')) # remove blanks and matrix spikes
 
   
@@ -69,7 +69,7 @@ stop("Review needed")
 ### Check to see if additional conversions are needed
 Conv_Check <- Filt_Proj_Data %>%
   left_join(NormUnits, c('SampleMedia', 'chr_uid', 'Char_Name', 'Result_Unit', 'Unit_UID')) %>% # joins data with the NormUnits file
-  distinct(SampleMedia, ParamUID, Char_Name, Unit_UID, Pref_Unit_UID) %>% # Finds the unique combinations of these nine columns
+  distinct(SampleMedia, ParamUID, Char_Name, Unit_UID, Pref_Unit_UID) %>% # Finds the unique combinations of these five columns
   mutate(Same = if_else(Unit_UID == Pref_Unit_UID, 'Yep', 'Nope')) %>% # creates a column indicating if the unit columns match
   filter(Same != 'Yep') # removes rows where the unit columns match leaving only pairs where conversion might be needed
   

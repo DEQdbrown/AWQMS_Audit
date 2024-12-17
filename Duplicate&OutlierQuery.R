@@ -31,8 +31,8 @@ setwd("//deqlab1/Assessment/AWQMS/Validation")
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
 ### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
-Q_Start_Date <- '2024-05-06'
-Q_End_Date <- '2024-05-08'
+Q_Start_Date <- '2023-11-07'
+Q_End_Date <- '2024-11-06'
 
 IR_Start_Date <- '2023-09-01' 
 IR_End_Date <- '2023-09-30'
