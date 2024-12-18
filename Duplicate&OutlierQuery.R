@@ -39,7 +39,7 @@ IR_End_Date <- '2023-09-30'
 
 ### Pull in list of parameter name translations and WQS units
 UnitConv <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
-OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2024-08-19.xlsx") # make sure the date matches the file
+OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2024-12-17.xlsx") # make sure the date matches the file
 
 ### Load convert units function
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_convert_units.R")
@@ -160,6 +160,8 @@ write.xlsx(all_together, file = paste0("AWQMS_duplicates_", Sys.Date(),".xlsx"))
 Outliers <- NormUnits_Data %>%
   left_join(OutPerc, c('SampleMedia', 'ParamUID', 'Char_Speciation', 'Sample_Fraction', 
                        'Statistical_Base', 'Preferred_Unit'), relationship = 'many-to-many') %>%
+  filter((SubMedia == "Leach" & str_detect(SampleSubmedia, regex("leachate|influent", ignore_case = TRUE))) |
+           is.na(SubMedia) | SubMedia != "Leach" & !str_detect(SampleSubmedia, regex("leachate|influent", ignore_case = TRUE))) %>%
   mutate(out_type = case_when(Conv_Result < p01 ~ "Below the 1st percentile",
                                 Conv_Result > p99 ~ "Above the 99th percentile",
                                 is.na(p01) | is.na(p99) ~ "No percentile data found"),
