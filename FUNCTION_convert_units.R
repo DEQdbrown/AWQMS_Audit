@@ -18,6 +18,7 @@ convert_units <- function(data, unit_col, pref_unit_col, result_col) {
       !!sym(unit_col) == 32 & !!sym(pref_unit_col) == 31 ~ !!sym(result_col), # convert mS/cm to uS/cm
       !!sym(unit_col) == 35 & !!sym(pref_unit_col) == 1 ~ NA, # WQX issue pH data submitted in mV
       !!sym(unit_col) == 36 & !!sym(pref_unit_col) == 14 ~ !!sym(result_col)*1.5, # convert pCi/l to ug/l
+      !!sym(unit_col) == 47 & !!sym(pref_unit_col) == 14 ~ !!sym(result_col)*1000000, # convert mg/ml to ug/l
       !!sym(unit_col) == 47 & !!sym(pref_unit_col) == 15 ~ !!sym(result_col)*1000, # convert mg/ml to mg/l
       !!sym(unit_col) == 49 & !!sym(pref_unit_col) == 15 ~ !!sym(result_col)*1000, # convert g/l to mg/l
       !!sym(unit_col) == 50 & !!sym(pref_unit_col) == 15 ~ !!sym(result_col)*1.42905, # convert ml/l to mg/l

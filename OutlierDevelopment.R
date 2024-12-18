@@ -27,8 +27,8 @@ options(scipen = 999999)
 setwd("//deqlab1/Assessment/AWQMS/Validation")
 
 ### Set the data window by changing these dates
-End_Date <- '2023-12-31' #Sys.Date()
-Start_Date <- '2023-12-01' #End_Date - years(10)
+End_Date <- Sys.Date()
+Start_Date <- End_Date - years(10)
 
 ### Pull in list of normalized units, parameterUIDs, and common names
 NormUnits <- read.xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
@@ -45,8 +45,9 @@ Filt_Proj_Data <- All_Proj_Data %>%
   filter(!str_detect(Result_Operator, '<'), # remove non-detects
          !is.na(Result_Unit), # remove NAs from unit column
          Result_status != 'Rejected', # remove rejected data
-         !str_detect(Activity_Type, 'Blank|Spike')) # remove blanks and matrix spikes
-
+         !str_detect(Activity_Type, 'Blank|Spike')) %>% # remove blanks and matrix spikes
+  mutate(Result_Unit = str_replace(Result_Unit, "/L", "/l"),
+         Result_Unit = str_replace(Result_Unit, "mL", "ml"))
   
 # This snippet isn't necessary to run, but can be helpful if needed. It is more informative if lines 43-48 have been run 
 # Count_Param <- All_Proj_Data %>%
@@ -55,7 +56,6 @@ Filt_Proj_Data <- All_Proj_Data %>%
   
 ### Check for new parameters
 Param_Check <- Filt_Proj_Data %>%
-  mutate(Result_Unit = str_replace(Result_Unit, "/L", "/l")) %>%
   left_join(NormUnits, c('SampleMedia', 'chr_uid', 'Char_Name', 'Result_Unit', 'Unit_UID')) %>% # joins data with the NormUnits file
   distinct(SampleMedia, chr_uid, ParamUID, Char_Name, CASNumber, Unit_UID, Result_Unit, 
            Pref_Unit_UID, Preferred_Unit) %>% # Finds the unique combinations of these nine columns
