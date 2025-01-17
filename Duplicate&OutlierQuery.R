@@ -8,8 +8,7 @@
 ### of data in AWQMS.                                                        ###
 ###                                                                          ###
 ### This script was adapted from Travis Pritchard's IR duplicate and         ###
-### outlier scripts. Lines 32, 33 and 37 should be the only lines that need  ###
-### updated before running the script.                                       ###
+### outlier scripts.                                                         ###
 ###                                                                          ###
 
 #install.packages("devtools")
@@ -31,15 +30,17 @@ setwd("//deqlab1/Assessment/AWQMS/Validation")
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
 ### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
-Q_Start_Date <- '2023-11-07'
-Q_End_Date <- '2024-11-06'
+Q_Start_Date <- '2025-01-01'
+Q_End_Date <- '2025-01-17'
 
-IR_Start_Date <- '2023-09-01' 
-IR_End_Date <- '2023-09-30'
+#IR_Start_Date <- '2023-09-01' 
+#IR_End_Date <- '2023-09-30'
 
-### Pull in list of parameter name translations and WQS units
+### Pull in list of parameter name translations, WQS units and Macro data
 UnitConv <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
 OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2024-12-17.xlsx") # make sure the date matches the file
+Macro_data <- AWQMS_Raw_Macros() %>%
+  select(act_id, Result_UID, DEQ_Taxon, StageID)
 
 ### Load convert units function
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_convert_units.R")
@@ -69,6 +70,7 @@ NormUnits_Data <- All_Data %>%
 straight_dups <- NormUnits_Data %>%
   filter(AU_ID != '99') %>%
   mutate(act_depth_height = ifelse(act_depth_height == 'NA', NA, act_depth_height)) %>%
+  left_join(Macro_data, by = c("act_id", "Result_UID")) %>% # join to Macro_data so StageID can be added
   group_by(SampleMedia, # Added to Travis' code because this script deals with all media
            MLocID,
            Char_Name,
@@ -86,6 +88,7 @@ straight_dups <- NormUnits_Data %>%
            Char_Speciation,
            Time_Basis,
            Taxonomic_Name,
+           StageID, # Excludes potential duplicates where stage ID doesn't match
            act_sam_compnt_name) %>%
   mutate(num = n(),
          num_distinct_results = n_distinct(Preferred_Unit),
@@ -121,6 +124,7 @@ strght_dups <- straight_dups %>%
 day_time_dups <- NormUnits_Data %>%
   filter(AU_ID != '99') %>% 
   filter(!(Result_UID %in% straight_dups$Result_UID)) %>%
+  left_join(Macro_data, by = c("act_id", "Result_UID")) %>% # join to Macro_data so StageID can be added
   mutate(act_depth_height = ifelse(act_depth_height == 'NA', NA, act_depth_height )) %>%
   group_by(MLocID,
            Char_Name,
@@ -134,6 +138,7 @@ day_time_dups <- NormUnits_Data %>%
            ParamUID, # Replaced wqstd_code
            Sample_Fraction,
            Char_Speciation,
+           StageID,
            Time_Basis) %>%
   mutate(num = n(),
          num_distinct_results = n_distinct(Preferred_Unit),
