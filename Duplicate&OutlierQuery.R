@@ -89,6 +89,7 @@ straight_dups <- NormUnits_Data %>%
            Time_Basis,
            Taxonomic_Name,
            StageID, # Excludes potential duplicates where stage ID doesn't match
+           DEQ_Taxon, # Excludes potential duplicates where taxon
            act_sam_compnt_name) %>%
   mutate(num = n(),
          num_distinct_results = n_distinct(Preferred_Unit),
