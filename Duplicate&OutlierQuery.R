@@ -30,11 +30,11 @@ setwd("//deqlab1/Assessment/AWQMS/Validation")
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
 ### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
-# Q_Start_Date <- '2025-01-01'
-# Q_End_Date <- '2025-01-17'
+Q_Start_Date <- '2024-05-13'
+Q_End_Date <- '2025-05-13'
 
-IR_Start_Date <- '2020-01-01'
-IR_End_Date <- '2024-12-31'
+#IR_Start_Date <- '2020-01-01'
+#IR_End_Date <- '2024-12-31'
 
 ### Pull in list of parameter name translations, WQS units and Macro data
 UnitConv <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
@@ -91,6 +91,7 @@ straight_dups <- NormUnits_Data %>%
            Char_Speciation,
            Time_Basis,
            Taxonomic_Name,
+           #EquipID,
            StageID, # Excludes potential duplicates where stage ID doesn't match
            DEQ_Taxon, # Excludes potential duplicates where taxon
            act_sam_compnt_name) %>%
@@ -104,24 +105,27 @@ straight_dups <- NormUnits_Data %>%
   arrange(group_num) %>%
   mutate(dup_type = "Duplicate")
 
-### Filter out media specific known non-duplicates
+### Filter out media specific known non-duplicates #maybe able to add sampling point to the query to avoid all this coding
 strght_dups <- straight_dups %>%
   filter(
     case_when(
-      SampleMedia == 'Habitat' & Char_Name == 'Canopy Measure' & num == '6' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Depth' & num == '5' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Distance From Left Bank' & num == '5' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Substrate Size Class, Midpoint' & num == '5' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Substrate Size Class, Transect' & num == '5' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Embeddedness' & num <= '5' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Bank Undercut' & num == '2' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Big trees (choice list)' & num == '2' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Small trees (choice list)' & num == '2' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Thalweg Wetted Width' & num == '2' ~ FALSE,
-      SampleMedia == 'Habitat' & Char_Name == 'Understory Herbaceous (choice list)' & num == '2' ~ FALSE,
-      SampleMedia == 'Habitat' & str_detect(Char_Name, 'Woody') & num == '2' ~ FALSE,
-      SampleMedia == 'Habitat' & str_detect(Char_Name, 'Human Influence') & num == '2' ~ FALSE,
-      SampleMedia == 'Habitat' & str_detect(Char_Name, 'Ground Coverage') & num == '2' ~ FALSE,
+      SampleMedia == 'Habitat' & Char_Name == 'Canopy Measure' & num <= '6' ~ FALSE, # make less than or equal to 6
+      SampleMedia == 'Habitat' & Char_Name == 'Depth' & num <= '5' ~ FALSE, # make less than or equal to 5
+      SampleMedia == 'Habitat' & Char_Name == 'Distance From Left Bank' & num <= '5' ~ FALSE, # make less than or equal to 5
+      SampleMedia == 'Habitat' & Char_Name == 'Substrate Size Class, Midpoint' & num <= '5' ~ FALSE, # make less than or equal to 5
+      SampleMedia == 'Habitat' & Char_Name == 'Substrate Size Class, Transect' & num <= '5' ~ FALSE, # make less than or equal to 5
+      SampleMedia == 'Habitat' & Char_Name == 'Embeddedness' & num <= '5' ~ FALSE, # make less than or equal to 5
+      SampleMedia == 'Habitat' & Char_Name == 'Bank Undercut' & num <= '2' ~ FALSE, # make all these less than or equal to 2
+      SampleMedia == 'Habitat' & Char_Name == 'Big trees (choice list)' & num <= '2' ~ FALSE,
+      SampleMedia == 'Habitat' & Char_Name == 'Small trees (choice list)' & num <= '2' ~ FALSE,
+      SampleMedia == 'Habitat' & Char_Name == 'Thalweg Wetted Width' & num <= '2' ~ FALSE, 
+      SampleMedia == 'Habitat' & Char_Name == 'Understory Herbaceous (choice list)' & num <= '2' ~ FALSE,
+      SampleMedia == 'Habitat' & Char_Name == 'Slope' & num <= '3' ~ FALSE,
+      SampleMedia == 'Habitat' & Char_Name == 'Bearing' & num <= '3' ~ FALSE,
+      SampleMedia == 'Habitat' & Char_Name == 'Slope/Bearing Proportion' & num <= '3' ~ FALSE,
+      SampleMedia == 'Habitat' & str_detect(Char_Name, 'Woody') & num <= '2' ~ FALSE,
+      SampleMedia == 'Habitat' & str_detect(Char_Name, 'Human Influence') & num <= '2' ~ FALSE,
+      SampleMedia == 'Habitat' & str_detect(Char_Name, 'Ground Coverage') & num <= '2' ~ FALSE,
       TRUE ~ TRUE))
 
 ### Create a dataset of day/time/method duplicate results - These need to be investigated in AWQMS
@@ -142,6 +146,7 @@ day_time_dups <- NormUnits_Data %>%
            ParamUID, # Replaced wqstd_code
            Sample_Fraction,
            Char_Speciation,
+           #EquipID,
            StageID,
            Time_Basis) %>%
   mutate(num = n(),
