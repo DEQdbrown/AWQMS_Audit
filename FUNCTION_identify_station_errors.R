@@ -33,7 +33,8 @@ identify_station_errors <- function(){
   #Identify stations in AWQMS that do not properly join to the stations database
   stations_errors <- dplyr::anti_join(AWQMS_stations, stations_stations,
                                       by = dplyr::join_by('org_id' == 'orgid',
-                                                          'mloc_id' == 'MLocID') )
+                                                          'mloc_id' == 'MLocID'))
+
   #Return the mismatched stations
   return(stations_errors)
   
