@@ -27,6 +27,18 @@ options(scipen = 999999)
 ### Set working directory
 setwd("//deqlab1/Assessment/AWQMS/Validation")
 
+### Complete the stations check
+## Look for stations that should be attributed to multiple organizations
+source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_missing_multiorg_sites.R")
+
+print_list <- list('oregon_multiorg_sites' = Oregon_multiorg_sites,
+                   'nonoregon_multiorg_sites' = nonoregon_multiorg_sites)
+
+openxlsx::write.xlsx(print_list, file = paste0("multi_org_station_to_add.xlsx"))
+
+## Look for stations where the OrgID in AWQMS doesn't match the OrgID in the StationsDB
+source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_identify_station_errors.R")
+
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
 ### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
