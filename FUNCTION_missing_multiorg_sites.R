@@ -1,20 +1,5 @@
-#' missing_multiorg_sites
-#'
-#' This function will find monitoring locations that have multiple organizations
-#' associated with the same MLocID. MLocIDs with more than 1 org associated with
-#' it are passed to the monitoring_locations_vw view in the stations database to
-#' see if they exist. Join failures are then written to an excel file at the
-#' save_location identified in the function to be added to the
-#' monitoring_locations_vw view in the stations database
-#'
-#' @param save_location
-#'
-#' @returns writes an excel file
-#' @export
-#'
 
-
-missing_multiorg_sites <- function(save_location){
+missing_multiorg_sites <- function(){
 
 
 # Connect to AWQMS stations -----------------------------------------------
@@ -45,8 +30,6 @@ DBI::dbDisconnect(con)
 # Connect to stations -----------------------------------------------------
 
 
-
-print("Query stations database...")
 station_con <- DBI::dbConnect(odbc::odbc(), "STATIONS")
 stations_filter <- dplyr::tbl(station_con, "VW_StationsAllDataAllOrgs") |>
   dplyr::select(orgid, MLocID, EcoRegion3, EcoRegion4,HUC8, HUC8_Name, HUC10,
@@ -77,13 +60,10 @@ nonoregon_multiorg_sites <- missing_station |>
             station_name = mloc_name,
             orgid = org_id)
 
-print_list <- list('oregon_multiorg_sites' = Oregon_multiorg_sites,
-                   'nonoregon_multiorg_sites' = nonoregon_multiorg_sites)
 
 
-
-openxlsx::write.xlsx(print_list, file = paste0(save_location,"multi_org_station_to_add.xlsx"))
 }
 
-
+#Run the function from above
+station_mismatches <- missing_multiorg_sites()
 
