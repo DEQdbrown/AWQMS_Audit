@@ -31,13 +31,17 @@ setwd("//deqlab1/Assessment/AWQMS/Validation")
 ## Look for stations that should be attributed to multiple organizations
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_missing_multiorg_sites.R")
 
-print_list <- list('oregon_multiorg_sites' = Oregon_multiorg_sites,
-                   'nonoregon_multiorg_sites' = nonoregon_multiorg_sites)
-
-openxlsx::write.xlsx(print_list, file = paste0("multi_org_station_to_add.xlsx"))
 
 ## Look for stations where the OrgID in AWQMS doesn't match the OrgID in the StationsDB
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_identify_station_errors.R")
+
+## Export findings to Excel
+print_list <- list('oregon_multiorg_sites' = Oregon_multiorg_sites,
+                   'nonoregon_multiorg_sites' = nonoregon_multiorg_sites,
+                   'station_errors' = station_errors)
+
+openxlsx::write.xlsx(print_list, file = paste0("multi_org_station_to_add.xlsx"))
+
 
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
