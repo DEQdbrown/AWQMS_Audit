@@ -60,10 +60,12 @@ nonoregon_multiorg_sites <- missing_station |>
             station_name = mloc_name,
             orgid = org_id)
 
-
+return(list(
+  Oregon = Oregon_multiorg_sites,
+  NonOregon = nonoregon_multiorg_sites
+))
 
 }
 
 #Run the function from above
 station_mismatches <- missing_multiorg_sites()
-
