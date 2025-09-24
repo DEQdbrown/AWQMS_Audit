@@ -36,8 +36,8 @@ source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_mi
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_identify_station_errors.R")
 
 ## Export findings to Excel
-print_list <- list('oregon_multiorg_sites' = Oregon_multiorg_sites,
-                   'nonoregon_multiorg_sites' = nonoregon_multiorg_sites,
+print_list <- list('oregon_multiorg_sites' = station_mismatches$Oregon,
+                   'nonoregon_multiorg_sites' = station_mismatches$NonOregon,
                    'station_errors' = station_errors)
 
 openxlsx::write.xlsx(print_list, file = paste0("multi_org_station_to_add.xlsx"))
@@ -46,8 +46,8 @@ openxlsx::write.xlsx(print_list, file = paste0("multi_org_station_to_add.xlsx"))
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
 ### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
-Q_Start_Date <- '2024-06-06'
-Q_End_Date <- '2025-06-05'
+Q_Start_Date <- '2024-09-23'
+Q_End_Date <- '2025-09-23'
 
 #IR_Start_Date <- '2020-01-01'
 #IR_End_Date <- '2024-12-31'
