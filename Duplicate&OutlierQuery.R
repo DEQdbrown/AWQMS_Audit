@@ -27,30 +27,15 @@ options(scipen = 999999)
 ### Set working directory
 setwd("//deqlab1/Assessment/AWQMS/Validation")
 
-### Complete the stations check
-## Look for stations that should be attributed to multiple organizations
-source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_missing_multiorg_sites.R")
-
-
-## Look for stations where the OrgID in AWQMS doesn't match the OrgID in the StationsDB
-source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_identify_station_errors.R")
-
-## Export findings to Excel
-print_list <- list('oregon_multiorg_sites' = station_mismatches$Oregon,
-                   'nonoregon_multiorg_sites' = station_mismatches$NonOregon,
-                   'station_errors' = station_errors)
-
-openxlsx::write.xlsx(print_list, file = paste0("multi_org_station_to_add.xlsx"))
-
 
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
 ### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
-#Q_Start_Date <- '2024-09-23'
-#Q_End_Date <- '2025-09-23'
+Q_Start_Date <- '2024-09-23'
+Q_End_Date <- '2025-09-23'
 
-IR_Start_Date <- '2020-01-01'
-IR_End_Date <- '2024-12-31'
+# IR_Start_Date <- '2020-01-01'
+# IR_End_Date <- '2024-12-31'
 
 ### Pull in list of parameter name translations, WQS units and Macro data
 UnitConv <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
@@ -62,18 +47,18 @@ Macro_data <- AWQMS_Raw_Macros() %>%
 source("https://raw.githubusercontent.com/DEQdbrown/AWQMS_Audit/main/FUNCTION_convert_units.R")
 
 ### Quarterly Audit data pull 
-# All_Data <- AWQMS_Data(last_change_start = Q_Start_Date, last_change_end = Q_End_Date, filterQC = FALSE) %>%
-#   mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"),
-#         res_last_change_date = as.Date(res_last_change_date, format = "%Y-%m-%d")) %>% # format date columns as dates
-#   filter(is.na(Result_Comment) | Result_Comment == "" |
-#            !str_detect(Result_Comment, 'DCC:|OCC:')) # remove previously reviewed results from dataset but keep NA and blank comments
+All_Data <- AWQMS_Data(last_change_start = Q_Start_Date, last_change_end = Q_End_Date, filterQC = FALSE) %>%
+  mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"),
+        res_last_change_date = as.Date(res_last_change_date, format = "%Y-%m-%d")) %>% # format date columns as dates
+  filter(is.na(Result_Comment) | Result_Comment == "" |
+           !str_detect(Result_Comment, 'DCC:|OCC:')) # remove previously reviewed results from dataset but keep NA and blank comments
 
 ## Pre-IR Audit data pull
-All_Data <- AWQMS_Data(startdate = IR_Start_Date, enddate = IR_End_Date, filterQC = FALSE) %>%
-  mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"),
-         res_last_change_date = as.Date(res_last_change_date, format = "%Y-%m-%d")) %>% # format date columns as dates) %>%
-  filter(is.na(Result_Comment) | Result_Comment == "" |
-           !str_detect(Result_Comment, ':WQX|DCC:|OCC:')) # remove data with comments from previous audits from dataset but keep NA and blank comments
+# All_Data <- AWQMS_Data(startdate = IR_Start_Date, enddate = IR_End_Date, filterQC = FALSE) %>%
+#   mutate(SampleStartDate = as.Date(SampleStartDate, format = "%Y-%m-%d"),
+#          res_last_change_date = as.Date(res_last_change_date, format = "%Y-%m-%d")) %>% # format date columns as dates) %>%
+#   filter(is.na(Result_Comment) | Result_Comment == "" |
+#            !str_detect(Result_Comment, ':WQX|DCC:|OCC:')) # remove data with comments from previous audits from dataset but keep NA and blank comments
 
 ### Normalize units to help identify duplicates
 NormUnits_Data <- All_Data %>%
