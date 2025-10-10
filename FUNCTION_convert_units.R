@@ -23,9 +23,11 @@ convert_units <- function(data, unit_col, pref_unit_col, result_col) {
       !!sym(unit_col) == 49 & !!sym(pref_unit_col) == 15 ~ !!sym(result_col)*1000, # convert g/l to mg/l
       !!sym(unit_col) == 50 & !!sym(pref_unit_col) == 15 ~ !!sym(result_col)*1.42905, # convert ml/l to mg/l
       !!sym(unit_col) == 60 & !!sym(pref_unit_col) == 31 ~ !!sym(result_col), # convert umho/cm to uS/cm
+      !!sym(unit_col) == 75 & !!sym(pref_unit_col) == 103 ~ !!sym(result_col), # convert FTU to NTU
       !!sym(unit_col) == 83 & !!sym(pref_unit_col) == 85 ~ !!sym(result_col)*0.000001, # convert ng/kg to mg/kg
       !!sym(unit_col) == 84 & !!sym(pref_unit_col) == 85 ~ !!sym(result_col)*0.001, # convert ug/kg to mg/kg
       !!sym(unit_col) == 86 & !!sym(pref_unit_col) == 261 ~ !!sym(result_col), # convert g/kg to ppth
+      !!sym(unit_col) == 87 & !!sym(pref_unit_col) == 85 ~ !!sym(result_col)*0.000001, # convert pg/g to mg/kg
       !!sym(unit_col) == 88 & !!sym(pref_unit_col) == 85 ~ !!sym(result_col)*0.001, # convert ng/g to mg/kg
       !!sym(unit_col) == 89 & !!sym(pref_unit_col) == 85 ~ !!sym(result_col), # convert ug/g to mg/kg
       !!sym(unit_col) == 91 & !!sym(pref_unit_col) == 14 ~ !!sym(result_col), # convert ppb to ug/l
@@ -36,6 +38,8 @@ convert_units <- function(data, unit_col, pref_unit_col, result_col) {
       !!sym(unit_col) == 113 & !!sym(pref_unit_col) == 44 ~ !!sym(result_col)*0.028316832, # convert cfs to m3/sec 
       !!sym(unit_col) == 123 & !!sym(pref_unit_col) == 44 ~ !!sym(result_col)*0.0000630902, # convert gal/min to m3/sec
       !!sym(unit_col) == 126 & !!sym(pref_unit_col) == 44 ~ !!sym(result_col)*0.043812636574074, # convert mgd to m3/sec
+      !!sym(unit_col) == 139 & !!sym(pref_unit_col) == 134 ~ !!sym(result_col)*25.4, # convert in to mm
+      !!sym(unit_col) == 139 & !!sym(pref_unit_col) == 135 ~ !!sym(result_col)*2.54, # convert in to cm
       !!sym(unit_col) == 139 & !!sym(pref_unit_col) == 137 ~ !!sym(result_col)*0.0254, # convert in to m
       !!sym(unit_col) == 140 & !!sym(pref_unit_col) == 137 ~ !!sym(result_col)*0.3048, # convert ft to m
       !!sym(unit_col) == 146 & !!sym(pref_unit_col) == 164 ~ !!sym(result_col), # convert MPN to cfu/100ml
@@ -53,6 +57,7 @@ convert_units <- function(data, unit_col, pref_unit_col, result_col) {
       !!sym(unit_col) == 298 & !!sym(pref_unit_col) == 103 ~ !!sym(result_col), # convert FNU to NTU
       !!sym(unit_col) == 299 & !!sym(pref_unit_col) == 103 ~ !!sym(result_col), # convert NTRU to NTU
       !!sym(unit_col) == 341 & !!sym(pref_unit_col) == 261 ~ !!sym(result_col), # convert PSU to ppt
+      !!sym(unit_col) == 366 & !!sym(pref_unit_col) == 31 ~ !!sym(result_col)*1000, # convert kOhm/cm to uS/cm
       !!sym(unit_col) == 100076 & !!sym(pref_unit_col) == 31 ~ !!sym(result_col)*10, # convert uS/m to uS/cm
       TRUE ~ !!sym(result_col)
     ))
