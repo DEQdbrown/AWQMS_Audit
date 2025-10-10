@@ -39,7 +39,7 @@ Q_End_Date <- '2025-09-23'
 
 ### Pull in list of parameter name translations, WQS units and Macro data
 UnitConv <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/NormalizedUnits.xlsx")
-OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2024-12-17.xlsx") # make sure the date matches the file
+OutPerc <- read_xlsx("//deqlab1/Assessment/AWQMS/Validation/OutlierPercentiles_2025-10-09.xlsx") # make sure the date matches the file
 Macro_data <- AWQMS_Raw_Macros() %>%
   select(act_id, Result_UID, DEQ_Taxon, StageID)
 
