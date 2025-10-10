@@ -126,4 +126,4 @@ LeachPerc <- LeachInflu_Data %>%
 ### Combine Data and write the file to Excel
 Percentiles <- bind_rows(MajorityPerc, LeachPerc)
 
-write.xlsx(Percentiles, str_glue("OutlierPercentiles_{End_Date}test.xlsx"))
+write.xlsx(Percentiles, str_glue("OutlierPercentiles_{End_Date}.xlsx"))
