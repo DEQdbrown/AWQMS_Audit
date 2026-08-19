@@ -21,7 +21,7 @@ library(readxl)
 library(openxlsx)
 
 ### Disable scientific notation
-options(scipen = 999999)
+options(scipen = 9999)
 
 ### Set working directory
 setwd("//deqlab1/Assessment/AWQMS/Validation")
