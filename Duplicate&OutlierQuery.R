@@ -31,8 +31,8 @@ setwd("//deqlab1/Assessment/AWQMS/Validation")
 ### Set the data window by changing these dates
 ### For quarterly audits, set the Q_date range to one year, then run lines 48-51
 ### For pre-Integrated Report audits, set the IR_date range to five years, then run lines 54-56
-Q_Start_Date <- '2025-01-16'
-Q_End_Date <- '2026-01-15'
+Q_Start_Date <- '2025-05-16'
+Q_End_Date <- '2026-05-15'
 
 # IR_Start_Date <- '2020-01-01'
 # IR_End_Date <- '2024-12-31'
@@ -120,6 +120,7 @@ strght_dups <- straight_dups %>%
       SampleMedia == 'Habitat' & Char_Name == 'Big trees (choice list)' & num <= '2' ~ FALSE,
       SampleMedia == 'Habitat' & Char_Name == 'Small trees (choice list)' & num <= '2' ~ FALSE,
       SampleMedia == 'Habitat' & Char_Name == 'Thalweg Wetted Width' & num <= '2' ~ FALSE, 
+      SampleMedia == 'Habitat' & Char_Name == 'Wetted Width' & num <= '2' ~ FALSE,
       SampleMedia == 'Habitat' & Char_Name == 'Understory Herbaceous (choice list)' & num <= '2' ~ FALSE,
       SampleMedia == 'Habitat' & Char_Name == 'Slope' & num <= '3' ~ FALSE,
       SampleMedia == 'Habitat' & Char_Name == 'Bearing' & num <= '3' ~ FALSE,
